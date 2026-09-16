@@ -1,11 +1,15 @@
 "use client";
 
+import { ThemeProvider } from "@/Components/ThemeProvider";
+import { authClient } from "@/lib/auth-client";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 const SignupPage = () => {
+  const router = useRouter();
   //  Password visiblity
 
   const [showPassword, setshowPassword] = useState(false);
@@ -15,38 +19,42 @@ const SignupPage = () => {
     register,
     handleSubmit,
     watch,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm();
 
   const handleSubmitForm = async (DATA) => {
     const { name, url, email, password } = DATA;
-    console.log({ name, url, email, password } )
+    console.log({ name, url, email, password });
 
-    //   Authentication
+    // Authentication
 
-//     const { data, error } = await authClient.signUp.email({
-//       name: name,
-//       image: url,
-//       email: email,
-//       password: password,
-//       callbackURL: "/",
-//     });
+    const { data, error } = await authClient.signUp.email({
+      name: name,
+      image: url,
+      email: email,
+      password: password,
+      callbackURL: "/",
+    });
 
-//     console.log("Register ERROR:", error);
-//     console.log("Register DATA:", data);
+    console.log("Register ERROR:", error);
+    console.log("Register DATA:", data);
 
-//     if (error) {
-//       alert("Wrong Attempt! Please try again");
-//       return;
-//     }
+    if (error) {
+      alert("Wrong Attempt! Please try again: " + (error.message || ""));
+      return;
+    }
 
-//     if (data) {
-//       alert("You are successfully signup");
-//     }
+    if (data) {
+      alert("You are successfully signed up!");
+      router.push("/");
+      router.refresh();
+    }
+
+    
   };
 
   return (
-    <form onSubmit={handleSubmit(handleSubmitForm)} className="container shadow-xl mx-auto bg-stale-100 flex flex-col justify-center items-center mt-10">
+    <form onSubmit={handleSubmit(handleSubmitForm)}  className="container shadow-xl mx-auto bg-stale-100 flex flex-col justify-center items-center mt-10">
       <fieldset className="fieldset bg-gray-200 border-base-300 w-11/12 md:w-5/12 p-10 rounded-box">
         <h1 className=" font-bold text-center text-[20px] py-3 ">
           Create an Account

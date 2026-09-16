@@ -1,19 +1,16 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { NavLink } from "./NavLink";
 import Image from "next/image";
 import Link from "next/link";
 import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
-import { HiSearch, HiMenu, HiX, HiPlus } from "react-icons/hi";
+import { HiMenu, HiX } from "react-icons/hi";
 import { HiSun, HiMoon } from "react-icons/hi2";
-import { Button } from "@heroui/react/button";
 import { Avatar } from "@heroui/react/avatar";
 import { Dropdown } from "@heroui/react/dropdown";
+import { NavLink } from "./NavLink";
 import { authClient } from "@/lib/auth-client";
-
-// import { authClient } from "@/lib/auth-client";
 
 const navLinks = [
   { href: "/", label: "Home" },
@@ -26,210 +23,168 @@ const navLinks = [
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const { theme, setTheme } = useTheme();
+
+  const { theme, setTheme, resolvedTheme } = useTheme();
   const router = useRouter();
 
-  const { data: session } = authClient.useSession()
+  const { data: session } = authClient.useSession();
   const user = session?.user;
-  console.log("User:", user);
 
-  const SignOutHandler = async() => {
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Hydration-safe session check: matches SSR initially, updates cleanly on mount
+  const isUser = mounted && Boolean(user);
+
+  // Show all routes when logged in with a session; otherwise only show Home & Ideas
+  const visibleLinks = isUser
+    ? navLinks
+    : navLinks.filter((link) => link.href === "/" || link.href === "/ideas");
+
+  const signOutHandler = async () => {
     await authClient.signOut({
       fetchOptions: {
         onSuccess: () => {
-          router.push("/signup"); // redirect to login page
+          router.push("/login");
+          router.refresh();
         },
       },
     });
-  }
-
-  // useEffect(() => {
-  //   setMounted(true);
-  // }, []);
-
-  const toggleTheme = () => {
-    setTheme(theme === "dark" ? "light" : "dark");
   };
 
-  return (
-    <nav className="sticky top-0 z-50 w-full border-b border-divider bg-background/80 backdrop-blur-xl backdrop-saturate-150 transition-all duration-300">
-      <div className="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8">
-        <div className="flex h-16 items-center justify-between gap-4">
+  const toggleTheme = () => {
+    const current = resolvedTheme || theme;
+    setTheme(current === "dark" ? "light" : "dark");
+  };
 
-          {/* ── Logo + Brand ── */}
-          <Link href="/" className="flex items-center gap-2 shrink-0 group">
-            <div className="relative h-9 w-9 rounded-lg overflow-hidden">
+  const isDark = mounted && (resolvedTheme === "dark" || theme === "dark");
+
+  return (
+    <nav className="sticky top-0 z-50 w-full border-b border-divider bg-background/90 backdrop-blur-md">
+      <div className="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8">
+        <div className="flex h-16 items-center justify-between">
+
+          {/* Logo */}
+          <Link href="/" className="flex items-center gap-2">
+            <div className="relative h-9 w-9">
               <Image
                 src="/assets/NavLogo.png"
                 alt="IdeaVault Logo"
                 fill
-                sizes="36px"
                 className="object-contain"
                 priority
               />
             </div>
-            <span className="text-base font-black tracking-widest uppercase text-foreground group-hover:text-primary transition-colors duration-200 select-none">
+
+            <span className="font-bold text-foreground text-lg tracking-tight">
               IdeaVault
             </span>
           </Link>
 
-          {/* ── Desktop Nav Links ── */}
-          <ul className="hidden md:flex items-center gap-6 flex-1 justify-center">
-            {navLinks.map(({ href, label }) => (
+          {/* Desktop Navigation */}
+          <ul className="hidden md:flex items-center gap-6">
+            {visibleLinks.map(({ href, label }) => (
               <li key={href}>
                 <NavLink href={href}>{label}</NavLink>
               </li>
             ))}
           </ul>
 
-          {/* ── Right Controls (desktop) ── */}
-          <div className="hidden md:flex items-center gap-2 shrink-0">
+          {/* Right Side */}
+          <div className="flex items-center gap-3">
 
-            {/* Search */}
-            <div className="relative flex items-center">
-              <HiSearch
-                className="absolute left-3 text-default-400 pointer-events-none z-10"
-                size={14}
-              />
-              <input
-                className="pl-8 pr-4 py-1.5 text-sm rounded-full bg-default-100 hover:bg-default-200 focus:bg-default-200 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-colors w-44 placeholder:text-default-400 text-foreground"
-                placeholder="Search vaults..."
-                type="search"
-                aria-label="Search vaults"
-              />
-            </div>
-
-            {/* Theme toggle */}
+            {/* Theme Button */}
             <button
               onClick={toggleTheme}
-              className="p-2 rounded-full text-default-600 hover:text-foreground hover:bg-default-100 transition-colors"
               aria-label="Toggle theme"
-              suppressHydrationWarning
+              className="p-2 rounded-full text-foreground/80 hover:text-foreground hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
             >
-              <span suppressHydrationWarning>
-                {mounted ? (
-                  theme === "dark" ? <HiSun size={18} /> : <HiMoon size={18} />
-                ) : (
-                  <HiMoon size={18} />
-                )}
-              </span>
+              {isDark ? (
+                <HiSun size={20} className="text-amber-400" />
+              ) : (
+                <HiMoon size={20} className="text-zinc-600 dark:text-zinc-300" />
+              )}
             </button>
 
-            {/* + PITCH button */}
-            <Button
-              size="sm"
-              variant="solid"
-              className="font-semibold px-4 rounded-full bg-primary text-white hover:bg-primary/90 transition-colors flex items-center gap-1"
-              onClick={() => router.push("/add-idea")}
-            >
-              <HiPlus size={16} />
-              Pitch
-            </Button>
+            {/* User Dropdown */}
+            {isUser ? (
+              <Dropdown>
+                <Dropdown.Trigger className="rounded-full cursor-pointer p-0 min-w-0 h-auto bg-transparent border-none ring-2 ring-transparent hover:ring-amber-500/50 transition-all focus:outline-none">
+                  <Avatar
+                    size="sm"
+                    src={user?.image}
+                    name={user?.name}
+                  />
+                </Dropdown.Trigger>
 
-            {/* Avatar Dropdown */}
-            <Dropdown>
-              <Dropdown.Trigger asChild>
-                <div
-                  className="flex rounded-full ring-2 ring-transparent hover:ring-primary/50 transition-all duration-200 cursor-pointer"
-                  aria-label="User menu"
-                  role="button"
-                  tabIndex={0}
-                >
-                  <Avatar size="sm" color="primary">
-                    <Avatar.Fallback className="text-xs font-bold">U</Avatar.Fallback>
-                  </Avatar>
-                </div>
-              </Dropdown.Trigger>
-              <Dropdown.Popover placement="bottom-end">
-                <Dropdown.Menu>
-                  <Dropdown.Item key="profile">
-                    <Link href="/profile" className="block w-full">Profile</Link>
-                  </Dropdown.Item>
-                  <Dropdown.Item key="my-ideas">
-                    <Link href="/my-ideas" className="block w-full">My Ideas</Link>
-                  </Dropdown.Item>
-                  <Dropdown.Item key="settings">
-                    <Link href="/settings" className="block w-full">Settings</Link>
-                  </Dropdown.Item>
-                  <Dropdown.Item key="logout" className="text-danger" onClick={SignOutHandler}>
-                    Sign Out
-                  </Dropdown.Item>
-                </Dropdown.Menu>
-              </Dropdown.Popover>
-            </Dropdown>
-          </div>
+                <Dropdown.Popover>
+                  <Dropdown.Menu>
 
-          {/* ── Mobile controls ── */}
-          <div className="flex md:hidden items-center gap-2">
-            <button
-              onClick={toggleTheme}
-              className="p-2 rounded-full text-default-600 hover:bg-default-100 transition-colors"
-              aria-label="Toggle theme"
-              suppressHydrationWarning
-            >
-              <span suppressHydrationWarning>
-                {mounted ? (
-                  theme === "dark" ? <HiSun size={18} /> : <HiMoon size={18} />
-                ) : (
-                  <HiMoon size={18} />
-                )}
-              </span>
-            </button>
+                    <Dropdown.Item key="profile">
+                      <Link href="/profile" className="w-full block">
+                        Profile
+                      </Link>
+                    </Dropdown.Item>
+
+                    <Dropdown.Item
+                      key="signout"
+                      onClick={signOutHandler}
+                    >
+                      Sign Out
+                    </Dropdown.Item>
+
+                  </Dropdown.Menu>
+                </Dropdown.Popover>
+              </Dropdown>
+            ) : ( 
+            <ul className="flex items-center gap-3">
+              <li><NavLink href="/login"> Login </NavLink> </li>
+              <li><NavLink href="/signup"> SignUp </NavLink> </li>
+            </ul>
+            )}
+
+            {/* Mobile Menu Button */}
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="p-2 rounded-full text-default-600 hover:bg-default-100 transition-colors"
-              aria-label="Toggle menu"
+              aria-label="Toggle navigation menu"
+              className="md:hidden p-2 rounded-lg text-foreground/80 hover:text-foreground hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
             >
               {isMenuOpen ? <HiX size={22} /> : <HiMenu size={22} />}
             </button>
+
           </div>
         </div>
       </div>
 
-      {/* ── Mobile Menu ── */}
+      {/* Mobile Menu */}
       {isMenuOpen && (
-        <div className="md:hidden border-t border-divider bg-background/95 backdrop-blur-xl">
-          <div className="mx-auto max-w-screen-xl px-4 py-4 flex flex-col gap-3">
-            {/* Mobile Search */}
-            <div className="relative flex items-center">
-              <HiSearch
-                className="absolute left-3 text-default-400 pointer-events-none z-10"
-                size={16}
-              />
-              <input
-                className="pl-9 w-full rounded-xl bg-default-100 text-sm py-2 placeholder:text-default-400 text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
-                placeholder="Search vaults..."
-                type="search"
-                aria-label="Search vaults"
-              />
-            </div>
-
-            {/* Mobile nav links */}
-            <ul className="flex flex-col gap-2">
-              {navLinks.map(({ href, label }) => (
-                <li key={href} onClick={() => setIsMenuOpen(false)}>
-                  <NavLink href={href}>{label}</NavLink>
+        <div className="md:hidden border-t border-divider bg-background">
+          <ul className="flex flex-col gap-3 p-4">
+            {visibleLinks.map(({ href, label }) => (
+              <li
+                key={href}
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <NavLink href={href}>{label}</NavLink>
+              </li>
+            ))}
+            {!isUser && (
+              <div className="pt-3 mt-1 border-t border-divider flex flex-col gap-2">
+                <li onClick={() => setIsMenuOpen(false)}>
+                  <NavLink href="/login">Login</NavLink>
                 </li>
-              ))}
-            </ul>
-
-            {/* Mobile CTA */}
-            <Button
-              variant="solid"
-              className="w-full rounded-full bg-primary text-white font-semibold flex items-center justify-center gap-1"
-              onClick={() => {
-                router.push("/add-idea");
-                setIsMenuOpen(false);
-              }}
-            >
-              <HiPlus size={16} />
-              Pitch
-            </Button>
-          </div>
+                <li onClick={() => setIsMenuOpen(false)}>
+                  <NavLink href="/signup">SignUp</NavLink>
+                </li>
+              </div>
+            )}
+          </ul>
         </div>
       )}
     </nav>
   );
 };
+
 
 export default Navbar;

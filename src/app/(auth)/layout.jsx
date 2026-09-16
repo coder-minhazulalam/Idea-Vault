@@ -1,13 +1,10 @@
 import Navbar from "@/Components/Navbar";
 
-// Auth pages don't show the Navbar — this layout wraps only login/signup
 export default function AuthLayout({ children }) {
-  
-  return <>
-  <Navbar />
-  <main>
-      {children}
-  </main>
-  
-  </>;
+  return (
+    <div className="min-h-screen flex flex-col bg-background text-foreground">
+      <Navbar />
+      <main className="flex-1 flex flex-col">{children}</main>
+    </div>
+  );
 }

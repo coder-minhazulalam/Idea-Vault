@@ -7,6 +7,7 @@ const client = uri ? new MongoClient(uri) : null;
 const db = client ? client.db("ideavault") : null;
 
 export const auth = betterAuth({
+  database: db ? mongodbAdapter(db) : undefined,
   secret: process.env.BETTER_AUTH_SECRET,
   baseURL: process.env.BETTER_AUTH_URL,
   emailAndPassword: {

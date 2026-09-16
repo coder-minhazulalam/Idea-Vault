@@ -4,8 +4,13 @@ import { ThemeProvider as NextThemesProvider } from "next-themes";
 
 export function ThemeProvider({ children }) {
   return (
-    <NextThemesProvider attribute="class" defaultTheme="light" enableSystem>
+    <NextThemesProvider
+      attribute={["class", "data-theme"]}
+      defaultTheme="light"
+      enableSystem
+    >
       {children}
     </NextThemesProvider>
   );
 }
+
