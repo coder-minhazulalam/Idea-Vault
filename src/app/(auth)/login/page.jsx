@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FaEye, FaEyeSlash, FaGithub, FaGoogle } from "react-icons/fa";
+import { FaEye, FaEyeSlash, FaGoogle } from "react-icons/fa";
 import { authClient } from "@/lib/auth-client";
 import toast from "react-hot-toast";
 
@@ -18,42 +18,82 @@ const LoginPage = () => {
     formState: { errors, isSubmitting },
   } = useForm();
 
+  // Email + Password Login
   const onSubmit = async (data) => {
     const { email, password } = data;
+
     console.log("Login:", { email, password });
-    
-    //   Authentication - login
+
     const { data: res, error } = await authClient.signIn.email({
-      email: email,
-      password: password,
+      email,
+      password,
       rememberMe: true,
       callbackURL: "/",
     });
 
     console.log("LOGIN ERROR:", error);
     console.log("LOGIN DATA:", res);
-        
+
     if (error) {
-      toast.error("Wrong Attempt! Please try again: " + (error.message || ""));
+      toast.error(
+        "Wrong Attempt! Please try again: " + (error.message || ""),
+        {
+          position: "top-center",
+          duration: 5000,
+          style: {
+            background: "#363636",
+            color: "#fff",
+          },
+        }
+      );
+
       return;
     }
 
-    if (res) {
-      toast.success("You are successfully Logged In", {
-        
-        position: "top-center",
-        
-        duration: 5000,
-        
-        style: {
-        
+    toast.success("You are successfully Logged In", {
+      position: "top-center",
+      duration: 5000,
+      style: {
         background: "#363636",
-        
-        color: "#fff"
+        color: "#fff",
+      },
+    });
+
+    router.push("/");
+    router.refresh();
+  };
+
+  // Google Login
+  const handleGoogleLogin = async () => {
+    try {
+      const { error } = await authClient.signIn.social({
+        provider: "google",
+        callbackURL: "/",
+      });
+
+      if (error) {
+        console.log("GOOGLE LOGIN ERROR:", error);
+
+        toast.error(error.message || "Google login failed", {
+          position: "top-center",
+          duration: 5000,
+          style: {
+            background: "#363636",
+            color: "#fff",
+          },
+        });
+      }
+    } catch (error) {
+      console.error("Google login error:", error);
+
+      toast.error("Something went wrong with Google login", {
+        position: "top-center",
+        duration: 5000,
+        style: {
+          background: "#363636",
+          color: "#fff",
         },
-})};
-      router.push("/");
-      router.refresh();
+      });
     }
   };
 
@@ -63,7 +103,10 @@ const LoginPage = () => {
 
         {/* Header */}
         <div className="mb-6 text-center">
-          <h1 className="text-2xl font-bold text-foreground">Welcome Back</h1>
+          <h1 className="text-2xl font-bold text-foreground">
+            Welcome Back
+          </h1>
+
           <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
             Sign in to continue to IdeaVault.
           </p>
@@ -73,49 +116,72 @@ const LoginPage = () => {
         <div className="flex gap-3 mb-5">
           <button
             type="button"
+            onClick={handleGoogleLogin}
             className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 hover:bg-zinc-100 dark:bg-zinc-800/60 dark:hover:bg-zinc-800 py-2.5 text-sm font-medium text-foreground transition-colors cursor-pointer"
           >
             <FaGoogle size={15} />
             Google
           </button>
-
         </div>
 
         {/* Divider */}
         <div className="flex items-center gap-3 mb-5">
           <div className="h-px flex-1 bg-zinc-200 dark:bg-zinc-800" />
-          <span className="text-xs text-zinc-500 dark:text-zinc-400">or sign in with email</span>
+
+          <span className="text-xs text-zinc-500 dark:text-zinc-400">
+            or sign in with email
+          </span>
+
           <div className="h-px flex-1 bg-zinc-200 dark:bg-zinc-800" />
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="flex flex-col gap-4"
+        >
 
           {/* Email */}
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-foreground">Email Address</label>
+            <label className="mb-1.5 block text-sm font-medium text-foreground">
+              Email Address
+            </label>
+
             <input
               type="email"
               placeholder="sarah@example.com"
               className="w-full rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 px-4 py-2.5 text-sm text-foreground placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500 transition-colors"
               {...register("email", {
                 required: "Email is required",
-                pattern: { value: /^\S+@\S+$/i, message: "Enter a valid email" },
+                pattern: {
+                  value: /^\S+@\S+$/i,
+                  message: "Enter a valid email",
+                },
               })}
             />
+
             {errors.email && (
-              <p className="mt-1 text-xs text-red-500">{errors.email.message}</p>
+              <p className="mt-1 text-xs text-red-500">
+                {errors.email.message}
+              </p>
             )}
           </div>
 
           {/* Password */}
           <div>
             <div className="mb-1.5 flex items-center justify-between">
-              <label className="text-sm font-medium text-foreground">Password</label>
-              <Link href="/forgot-password" className="text-xs text-amber-600 dark:text-amber-400 hover:underline">
+              <label className="text-sm font-medium text-foreground">
+                Password
+              </label>
+
+              <Link
+                href="/forgot-password"
+                className="text-xs text-amber-600 dark:text-amber-400 hover:underline"
+              >
                 Forgot password?
               </Link>
             </div>
+
             <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
@@ -123,20 +189,31 @@ const LoginPage = () => {
                 className="w-full rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 px-4 py-2.5 pr-11 text-sm text-foreground placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500 transition-colors"
                 {...register("password", {
                   required: "Password is required",
-                  minLength: { value: 6, message: "Minimum 6 characters" },
+                  minLength: {
+                    value: 6,
+                    message: "Minimum 6 characters",
+                  },
                 })}
               />
+
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-foreground cursor-pointer"
                 aria-label="Toggle password visibility"
               >
-                {showPassword ? <FaEye size={15} /> : <FaEyeSlash size={15} />}
+                {showPassword ? (
+                  <FaEye size={15} />
+                ) : (
+                  <FaEyeSlash size={15} />
+                )}
               </button>
             </div>
+
             {errors.password && (
-              <p className="mt-1 text-xs text-red-500">{errors.password.message}</p>
+              <p className="mt-1 text-xs text-red-500">
+                {errors.password.message}
+              </p>
             )}
           </div>
 
@@ -153,7 +230,11 @@ const LoginPage = () => {
         {/* Footer */}
         <p className="mt-5 text-center text-sm text-zinc-500 dark:text-zinc-400">
           Don&apos;t have an account?{" "}
-          <Link href="/signup" className="font-medium text-amber-600 dark:text-amber-400 hover:underline">
+
+          <Link
+            href="/signup"
+            className="font-medium text-amber-600 dark:text-amber-400 hover:underline"
+          >
             Sign up
           </Link>
         </p>

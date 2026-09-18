@@ -3,13 +3,12 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
 import { HiMenu, HiX } from "react-icons/hi";
-import { HiSun, HiMoon } from "react-icons/hi2";
 import { Avatar } from "@heroui/react/avatar";
 import { Dropdown } from "@heroui/react/dropdown";
 import { NavLink } from "./NavLink";
+import ThemeButton from "./ThemeButton";
 import { authClient } from "@/lib/auth-client";
 
 const navLinks = [
@@ -23,8 +22,6 @@ const navLinks = [
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
-
-  const { theme, setTheme, resolvedTheme } = useTheme();
   const router = useRouter();
 
   const { data: session } = authClient.useSession();
@@ -52,13 +49,6 @@ const Navbar = () => {
       },
     });
   };
-
-  const toggleTheme = () => {
-    const current = resolvedTheme || theme;
-    setTheme(current === "dark" ? "light" : "dark");
-  };
-
-  const isDark = mounted && (resolvedTheme === "dark" || theme === "dark");
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-divider bg-background/90 backdrop-blur-md">
@@ -95,17 +85,7 @@ const Navbar = () => {
           <div className="flex items-center gap-3">
 
             {/* Theme Button */}
-            <button
-              onClick={toggleTheme}
-              aria-label="Toggle theme"
-              className="p-2 rounded-full text-foreground/80 hover:text-foreground hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
-            >
-              {isDark ? (
-                <HiSun size={20} className="text-amber-400" />
-              ) : (
-                <HiMoon size={20} className="text-zinc-600 dark:text-zinc-300" />
-              )}
-            </button>
+            <ThemeButton />
 
             {/* User Dropdown */}
             {isUser ? (

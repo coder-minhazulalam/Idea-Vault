@@ -6,3 +6,36 @@
 * {
   box-sizing: border-box;
 }
+
+.gradient-pink {
+  background: linear-gradient(90deg, #ff2d78, #a23be5);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.gradient-blue {
+  background: linear-gradient(90deg, #008bd2, #4857e8);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.gradient-purple {
+  background: linear-gradient(90deg, #9b35e9, #d33b9e);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+@keyframes slideContent {
+  from {
+    opacity: 0;
+    transform: translateX(-15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-slideContent {
+  animation: slideContent 0.5s ease-out;
+}

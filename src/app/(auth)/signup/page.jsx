@@ -1,6 +1,5 @@
 "use client";
 
-import { ThemeProvider } from "@/Components/ThemeProvider";
 import { authClient } from "@/lib/auth-client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
