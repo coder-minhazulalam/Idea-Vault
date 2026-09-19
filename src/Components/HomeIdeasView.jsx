@@ -10,9 +10,9 @@ const HomeIdeasView = async () => {
   let data = [];
 
   try {
-    const res = await fetch("http://localhost:5000/ideas/home", {
+    const res = await fetch("http://localhost:5000/home", {
       cache: "no-store",
-    });
+    })
 
     if (!res.ok) {
       throw new Error("Failed to fetch ideas");

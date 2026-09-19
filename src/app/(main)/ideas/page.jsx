@@ -5,6 +5,7 @@ import {
   Tag,
   TrendingUp,
 } from "lucide-react";
+import Link from "next/link";
 
 const IdeasPage = async () => {
   let data = [];
@@ -120,13 +121,16 @@ const IdeasPage = async () => {
                       </div>
                     </div>
 
-                    <button
+      <Link href={`/ideas/${idea._id}`}>
+                          <button
                       type="button"
                       className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-700 shadow-sm transition-all duration-200 hover:border-slate-300 hover:bg-slate-50 dark:border-white/10 dark:bg-white/5 dark:text-slate-200 dark:hover:bg-white/10"
                     >
                       Details
                       <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5" />
                     </button>
+      </Link>
+
                   </div>
                 </article>
               );
