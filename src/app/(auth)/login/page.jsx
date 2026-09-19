@@ -173,13 +173,6 @@ const LoginPage = () => {
               <label className="text-sm font-medium text-foreground">
                 Password
               </label>
-
-              <Link
-                href="/forgot-password"
-                className="text-xs text-amber-600 dark:text-amber-400 hover:underline"
-              >
-                Forgot password?
-              </Link>
             </div>
 
             <div className="relative">
@@ -195,6 +188,15 @@ const LoginPage = () => {
                   },
                 })}
               />
+
+             <div className="flex justify-end mt-[2px]"> 
+                <Link
+                href="/forgot-password"
+                className="text-xs text-amber-600 dark:text-amber-400 hover:underline"
+              >
+                Forgot password?
+              </Link>
+              </div>
 
               <button
                 type="button"
