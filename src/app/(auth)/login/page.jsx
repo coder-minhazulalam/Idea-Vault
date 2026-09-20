@@ -3,14 +3,16 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { FaEye, FaEyeSlash, FaGoogle } from "react-icons/fa";
 import { authClient } from "@/lib/auth-client";
 import toast from "react-hot-toast";
 
 const LoginPage = () => {
-  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
+  const searchParams = useSearchParams();
+
+  const callbackUrl = searchParams.get("callbackUrl") || "/";
 
   const {
     register,
@@ -18,17 +20,15 @@ const LoginPage = () => {
     formState: { errors, isSubmitting },
   } = useForm();
 
-  // Email + Password Login
   const onSubmit = async (data) => {
     const { email, password } = data;
-
-    console.log("Login:", { email, password });
 
     const { data: res, error } = await authClient.signIn.email({
       email,
       password,
       rememberMe: true,
-      callbackURL: "/",
+              callbackURL: callbackUrl,
+
     });
 
     console.log("LOGIN ERROR:", error);
@@ -52,28 +52,27 @@ const LoginPage = () => {
 
     toast.success("You are successfully Logged In", {
       position: "top-center",
-      duration: 5000,
+      duration: 2000,
       style: {
         background: "#363636",
         color: "#fff",
       },
     });
 
-    router.push("/");
-    router.refresh();
+    // Wait for cookie/session to be stored
+    setTimeout(() => {
+      window.location.href = callbackUrl;
+    }, 300);
   };
 
-  // Google Login
   const handleGoogleLogin = async () => {
     try {
       const { error } = await authClient.signIn.social({
         provider: "google",
-        callbackURL: "/",
+        callbackURL: callbackUrl,
       });
 
       if (error) {
-        console.log("GOOGLE LOGIN ERROR:", error);
-
         toast.error(error.message || "Google login failed", {
           position: "top-center",
           duration: 5000,
@@ -100,8 +99,7 @@ const LoginPage = () => {
   return (
     <div className="flex-1 flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md rounded-2xl bg-gray-300 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-8 shadow-xl">
-
-        {/* Header */}
+        
         <div className="mb-6 text-center">
           <h1 className="text-2xl font-bold text-foreground">
             Welcome Back
@@ -112,7 +110,6 @@ const LoginPage = () => {
           </p>
         </div>
 
-        {/* Social Buttons */}
         <div className="flex gap-3 mb-5">
           <button
             type="button"
@@ -124,7 +121,6 @@ const LoginPage = () => {
           </button>
         </div>
 
-        {/* Divider */}
         <div className="flex items-center gap-3 mb-5">
           <div className="h-px flex-1 bg-zinc-200 dark:bg-zinc-800" />
 
@@ -135,13 +131,10 @@ const LoginPage = () => {
           <div className="h-px flex-1 bg-zinc-200 dark:bg-zinc-800" />
         </div>
 
-        {/* Form */}
         <form
           onSubmit={handleSubmit(onSubmit)}
           className="flex flex-col gap-4"
         >
-
-          {/* Email */}
           <div>
             <label className="mb-1.5 block text-sm font-medium text-foreground">
               Email Address
@@ -167,13 +160,10 @@ const LoginPage = () => {
             )}
           </div>
 
-          {/* Password */}
           <div>
-            <div className="mb-1.5 flex items-center justify-between">
-              <label className="text-sm font-medium text-foreground">
-                Password
-              </label>
-            </div>
+            <label className="mb-1.5 block text-sm font-medium text-foreground">
+              Password
+            </label>
 
             <div className="relative">
               <input
@@ -189,20 +179,10 @@ const LoginPage = () => {
                 })}
               />
 
-             <div className="flex justify-end mt-[2px]"> 
-                <Link
-                href="/forgot-password"
-                className="text-xs text-amber-600 dark:text-amber-400 hover:underline"
-              >
-                Forgot password?
-              </Link>
-              </div>
-
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-foreground cursor-pointer"
-                aria-label="Toggle password visibility"
               >
                 {showPassword ? (
                   <FaEye size={15} />
@@ -212,6 +192,15 @@ const LoginPage = () => {
               </button>
             </div>
 
+            <div className="flex justify-end mt-[2px]">
+              <Link
+                href="/forgot-password"
+                className="text-xs text-amber-600 dark:text-amber-400 hover:underline"
+              >
+                Forgot password?
+              </Link>
+            </div>
+
             {errors.password && (
               <p className="mt-1 text-xs text-red-500">
                 {errors.password.message}
@@ -219,7 +208,6 @@ const LoginPage = () => {
             )}
           </div>
 
-          {/* Submit */}
           <button
             type="submit"
             disabled={isSubmitting}
@@ -229,7 +217,6 @@ const LoginPage = () => {
           </button>
         </form>
 
-        {/* Footer */}
         <p className="mt-5 text-center text-sm text-zinc-500 dark:text-zinc-400">
           Don&apos;t have an account?{" "}
 

@@ -1,12 +1,48 @@
 "use client";
-
-import { useState } from "react";
+import { authClient } from "@/lib/auth-client";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
-const CommentSection = ({ ideaId }) => {
-  const [comment, setComment] = useState("");
-  const [isPosting, setIsPosting] = useState(false);
 
+
+const CommentSection = ({ ideaId }) => {
+
+  const [comment, setComment] = useState("");
+  const [comments, setComments] = useState([]);
+  const [isPosting, setIsPosting] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const { data: session } = authClient.useSession();
+  const user = session?.user;
+
+  // Fetch comments
+  const fetchComments = async () => {
+    try {
+      setIsLoading(true);
+
+      const res = await fetch(
+        `http://localhost:5000/comments/${ideaId}`
+      );
+
+      if (!res.ok) {
+        throw new Error("Failed to fetch comments");
+      }
+
+      const data = await res.json();
+
+      setComments(data);
+    } catch (error) {
+      console.error("Error fetching comments:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchComments();
+  }, [ideaId]);
+
+  // Post comment
   const handleComment = async (e) => {
     e.preventDefault();
 
@@ -18,7 +54,7 @@ const CommentSection = ({ ideaId }) => {
     try {
       setIsPosting(true);
 
-      const res = await fetch("http://localhost:5000/comments", {
+      const res = await fetch( `http://localhost:5000/comments/${ideaId}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -32,6 +68,11 @@ const CommentSection = ({ ideaId }) => {
       if (!res.ok) {
         throw new Error("Failed to post comment");
       }
+
+      const newComment = await res.json();
+
+      // Add new comment immediately
+      setComments((prev) => [...prev, newComment]);
 
       setComment("");
 
@@ -61,7 +102,6 @@ const CommentSection = ({ ideaId }) => {
 
       {/* Comment Form */}
       <form onSubmit={handleComment}>
-
         <textarea
           value={comment}
           onChange={(e) => setComment(e.target.value)}
@@ -81,15 +121,65 @@ const CommentSection = ({ ideaId }) => {
         </div>
       </form>
 
-      {/* Comments will appear here */}
+      {/* Comments */}
       <div className="mt-8 border-t border-zinc-200 pt-6 dark:border-zinc-800">
         <h3 className="text-sm font-semibold text-zinc-900 dark:text-white">
           Comments
         </h3>
 
-        <p className="mt-4 text-center text-sm text-zinc-500 dark:text-zinc-400">
-          No comments yet. Be the first to share your thoughts.
-        </p>
+        {isLoading ? (
+          <p className="mt-4 text-center text-sm text-zinc-500 dark:text-zinc-400">
+            Loading comments...
+          </p>
+        ) : comments.length > 0 ? (
+          <div className="mt-4 flex flex-col gap-4">
+            {comments.map((item) => (
+              <div
+                key={item._id}
+                className="rounded-xl border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-700 dark:bg-zinc-800/60"
+              >
+                <div className="flex gap-2 justify-start ">
+                    <img
+                      src={user.image || "/assets/default-avatar.png"}
+                      alt={user.name || "User"}
+                      className="h-5 w-5 object-cover border-[50%]"
+                    />
+
+                 <p className="mt-2 text-xs text-zinc-400">
+                  {user?.name}
+                </p>
+
+                </div>
+
+                <p className="text-sm leading-relaxed text-zinc-800 dark:text-zinc-200">
+                  {item.comment}
+                </p>
+
+                
+
+                <div className="mt-3 flex justify-end gap-2">
+                  <button
+                    type="button"
+                    className="rounded-lg bg-blue-50 px-3 py-1.5 text-xs font-medium text-blue-600 hover:bg-blue-100 dark:bg-blue-500/10 dark:text-blue-400"
+                  >
+                    Edit
+                  </button>
+
+                  <button
+                    type="button"
+                    className="rounded-lg bg-red-50 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-100 dark:bg-red-500/10 dark:text-red-400"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="mt-4 text-center text-sm text-zinc-500 dark:text-zinc-400">
+            No comments yet. Be the first to share your thoughts.
+          </p>
+        )}
       </div>
     </section>
   );

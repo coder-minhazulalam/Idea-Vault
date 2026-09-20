@@ -15,10 +15,9 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body className="min-h-screen flex flex-col bg-background text-foreground antialiased">
-        <ThemeProvider>
-          {children}
-        </ThemeProvider>
-
+            <ThemeProvider>
+              {children}
+            </ThemeProvider>
         <Toaster />
       </body>
     </html>

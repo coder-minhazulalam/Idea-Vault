@@ -213,7 +213,9 @@ const IdeaDetailsPage = async ({ params }) => {
         </section>
 
         {/* Separate Comment Section */}
-        <CommentSection ideaId={id} />
+        <div>
+           <CommentSection ideaId={data?._id}/>
+        </div>
       </div>
     </main>
   );

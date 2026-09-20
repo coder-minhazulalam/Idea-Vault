@@ -31,7 +31,6 @@ const Navbar = () => {
     setMounted(true);
   }, []);
 
-  // Hydration-safe session check: matches SSR initially, updates cleanly on mount
   const isUser = mounted && Boolean(user);
 
   // Show all routes when logged in with a session; otherwise only show Home & Ideas
@@ -88,41 +87,24 @@ const Navbar = () => {
             <ThemeButton />
 
             {/* User Dropdown */}
-            {isUser ? (
-              <Dropdown>
-                <Dropdown.Trigger className="rounded-full cursor-pointer p-0 min-w-0 h-auto bg-transparent border-none ring-2 ring-transparent hover:ring-amber-500/50 transition-all focus:outline-none">
-                  <Avatar
-                    size="sm"
-                    src={user?.image}
-                    name={user?.name}
-                  />
-                </Dropdown.Trigger>
-
-                <Dropdown.Popover>
-                  <Dropdown.Menu>
-
-                    <Dropdown.Item key="profile">
-                      <Link href="/profile" className="w-full block">
-                        Profile
-                      </Link>
-                    </Dropdown.Item>
-
-                    <Dropdown.Item
-                      key="signout"
-                      onClick={signOutHandler}
-                    >
-                      Sign Out
-                    </Dropdown.Item>
-
-                  </Dropdown.Menu>
-                </Dropdown.Popover>
-              </Dropdown>
-            ) : ( 
-            <ul className="flex items-center gap-3">
-              <li><NavLink href="/login"> Login </NavLink> </li>
-              <li><NavLink href="/signup"> SignUp </NavLink> </li>
-            </ul>
-            )}
+          {user ? (
+  <div className="h-9 w-9 overflow-hidden rounded-full">
+    <img
+      src={user.image || "/assets/default-avatar.png"}
+      alt={user.name || "User"}
+      className="h-full w-full object-cover"
+    />
+  </div>
+) : (
+  <ul className="flex items-center gap-3">
+    <li>
+      <NavLink href="/login">Login</NavLink>
+    </li>
+    <li>
+      <NavLink href="/signup">SignUp</NavLink>
+    </li>
+  </ul>
+)}
 
             {/* Mobile Menu Button */}
             <button
