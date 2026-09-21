@@ -89,11 +89,36 @@ const Navbar = () => {
             {/* User Dropdown */}
           {user ? (
   <div className="h-9 w-9 overflow-hidden rounded-full">
-    <img
+
+      <Dropdown>
+                <Dropdown.Trigger className="rounded-full cursor-pointer p-0 min-w-0 h-auto bg-transparent border-none ring-2 ring-transparent hover:ring-amber-500/50 transition-all focus:outline-none">
+                      <img
       src={user.image || "/assets/default-avatar.png"}
       alt={user.name || "User"}
       className="h-full w-full object-cover"
     />
+                </Dropdown.Trigger>
+
+                <Dropdown.Popover>
+                  <Dropdown.Menu>
+
+                    <Dropdown.Item key="profile">
+                      <Link href="/profile" className="w-full block">
+                        Profile
+                      </Link>
+                    </Dropdown.Item>
+
+                    <Dropdown.Item
+                      key="signout"
+                      onClick={signOutHandler}
+                    >
+                      Sign Out
+                    </Dropdown.Item>
+
+                  </Dropdown.Menu>
+                </Dropdown.Popover>
+              </Dropdown>
+
   </div>
 ) : (
   <ul className="flex items-center gap-3">

@@ -67,21 +67,14 @@ const LoginPage = () => {
 
   const handleGoogleLogin = async () => {
     try {
-      const { error } = await authClient.signIn.social({
+       const Googledata = await authClient.signIn.social({
         provider: "google",
         callbackURL: callbackUrl,
       });
 
-      if (error) {
-        toast.error(error.message || "Google login failed", {
-          position: "top-center",
-          duration: 5000,
-          style: {
-            background: "#363636",
-            color: "#fff",
-          },
-        });
-      }
+  
+      console.log("Google Login Data" , Googledata);
+
     } catch (error) {
       console.error("Google login error:", error);
 
