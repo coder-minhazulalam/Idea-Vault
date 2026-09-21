@@ -1,48 +1,48 @@
 
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { handleRevalidation } from "./RevalidationPath";
+import toast from "react-hot-toast";
 
-const DeleteComments = ({ ideaId }) => {
-  const router = useRouter();
-  const [isCancelling, setIsCancelling] = useState(false);
+const DeleteComments = ({ commentId, onSuccess }) => {
+  const [isDeleting, setIsDeleting] = useState(false);
 
-  const handleCancel = async () => {
-    if (!id) return;
+  const handleDelete = async () => {
+    if (!commentId) return;
 
-    const confirmCancel = window.confirm("Are you sure you want to cancel this booking?");
-    if (!confirmCancel) return;
+    const confirmDelete = window.confirm("Are you sure you want to delete this comment?");
+    if (!confirmDelete) return;
 
-    setIsCancelling(true);
+    setIsDeleting(true);
     try {
-      const res = await fetch(`http://localhost:5000/comments/${ideaId}`, {
+      const res = await fetch(`http://localhost:5000/comments/${commentId}`, {
         method: "DELETE",
       });
 
-      console.log("DELETE status:", res.status);
+      if (!res.ok) {
+        throw new Error("Failed to delete comment");
+      }
 
-      if (res.ok) {
-        await handleRevalidation("/mybookings");
-        router.refresh();
+      toast.success("Comment deleted successfully");
+      if (onSuccess) {
+        onSuccess();
       }
     } catch (error) {
       console.error("Delete Error:", error);
+      toast.error("Failed to delete comment");
     } finally {
-      setIsCancelling(false);
+      setIsDeleting(false);
     }
   };
 
   return (
     <button
-      onClick={handleCancel}
-      disabled={isCancelling}
-      className="border border-red-300 text-red-500 hover:bg-red-50 text-xs px-3 py-2 rounded transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+      onClick={handleDelete}
+      disabled={isDeleting}
+      className="border border-red-300 text-red-500 hover:bg-red-50 text-xs px-3 py-1.5 rounded-lg transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed dark:border-red-900/40 dark:hover:bg-red-950/20"
     >
-      {isCancelling ? "Cancelling..." : "Cancel"}
+      {isDeleting ? "Deleting..." : "Delete"}
     </button>
-
   );
 };
 
