@@ -12,7 +12,7 @@ const DeleteIdea = ({ ideaId }) => {
   const handleDelete = async () => {
     setIsDeleting(true);
     try {
-      const res = await fetch(`http://localhost:5000/ideas/${ideaId}`, {
+      const res = await fetch(`{process.env.NEXT_PUBLIC_SERVER_URL}/ideas/${ideaId}`, {
         method: "DELETE",
       });
 

@@ -26,7 +26,7 @@ const MyInteractionsPage = () => {
     const fetchInteractions = async () => {
       setLoading(true);
       try {
-        const res = await fetch(`http://localhost:5000/comments/user/${userId}`);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/comments/user/${userId}`);
         const data = await res.json();
         setIdeas(data);
       } catch (error) {

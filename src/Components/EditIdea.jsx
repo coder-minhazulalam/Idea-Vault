@@ -45,7 +45,7 @@ const EditIdea = ({ idea }) => {
     setIsUpdating(true);
 
     try {
-      const res = await fetch(`http://localhost:5000/ideas/${idea._id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/ideas/${idea._id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),

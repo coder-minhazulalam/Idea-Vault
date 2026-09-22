@@ -26,7 +26,7 @@ const MyIdeasPage = () => {
     const fetchMyIdeas = async () => {
       setLoading(true);
       try {
-        const res = await fetch(`http://localhost:5000/ideas/user/${userId}`);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/ideas/user/${userId}`);
         const data = await res.json();
         setIdeas(data);
       } catch (error) {

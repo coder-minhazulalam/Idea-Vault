@@ -40,8 +40,8 @@ export default function ProfilePage() {
       setStatsLoading(true);
       try {
         const [ideasRes, commentsRes] = await Promise.all([
-          fetch(`http://localhost:5000/ideas/user/${user.id}`).then((r) => r.json()).catch(() => []),
-          fetch(`http://localhost:5000/comments/user/${user.id}`).then((r) => r.json()).catch(() => []),
+          fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/ideas/user/${user.id}`).then((r) => r.json()).catch(() => []),
+          fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/comments/user/${user.id}`).then((r) => r.json()).catch(() => []),
         ]);
 
         if (Array.isArray(ideasRes)) setIdeaCount(ideasRes.length);

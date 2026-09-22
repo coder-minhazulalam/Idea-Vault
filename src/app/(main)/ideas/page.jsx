@@ -31,7 +31,7 @@ const IdeasPage = () => {
         if (search) params.set("search", search);
         if (category) params.set("category", category);
 
-        const res = await fetch(`http://localhost:5000/ideas?${params.toString()}`);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/ideas?${params.toString()}`);
         const data = await res.json();
         setIdeas(data);
       } catch (error) {

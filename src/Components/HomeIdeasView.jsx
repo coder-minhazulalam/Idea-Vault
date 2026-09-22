@@ -5,13 +5,12 @@ import {
   Tag,
   TrendingUp,
 } from "lucide-react";
-import { API_BASE_URL } from "@/lib/api";
 
 const HomeIdeasView = async () => {
   let data = [];
 
   try {
-    const res = await fetch(`${API_BASE_URL}/home`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/home`, {
       cache: "no-store",
     })
 

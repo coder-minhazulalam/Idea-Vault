@@ -8,7 +8,7 @@ const IdeaDetailsPage = async ({ params }) => {
   let data = null;
 
   try {
-    const res = await fetch(`http://localhost:5000/ideas/${id}`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/ideas/${id}`, {
       cache: "no-store",
     });
 
