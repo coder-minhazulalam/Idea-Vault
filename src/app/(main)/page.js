@@ -2,6 +2,7 @@ import HomeIdeasView from "@/Components/HomeIdeasView";
 import ImageSlider from "@/Components/ImageSlider";
 import TitleSection from "@/Components/TitleSection";
 import ExtraCategories from "@/Components/ExtraCategories";
+import Footer from "@/Components/Footer";
 
 export default function Home() {
   return (
@@ -38,6 +39,13 @@ export default function Home() {
         <div className="mx-auto w-full max-w-7xl">
           <ExtraCategories />
         </div>
+      </section>
+
+
+
+            <section className="w-full px-4 py-8 pb-16 sm:px-6 lg:px-8">
+      <Footer/>
+
       </section>
 
     </main>
