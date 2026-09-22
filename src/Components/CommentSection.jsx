@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import DeleteComments from "./DeleteComments";
 import EditComments from "./EditComments";
+import { API_BASE_URL } from "@/lib/api";
 
 const CommentSection = ({ ideaId }) => {
   const { data: session } = authClient.useSession();
@@ -20,7 +21,7 @@ const CommentSection = ({ ideaId }) => {
     if (!ideaId) return;
 
     try {
-      const res = await fetch(`http://localhost:5000/comments/${ideaId}`);
+      const res = await fetch(`${API_BASE_URL}/comments/${ideaId}`);
 
       if (!res.ok) {
         throw new Error("Failed to fetch comments");
@@ -56,7 +57,7 @@ const CommentSection = ({ ideaId }) => {
     setIsPosting(true);
 
     try {
-      const res = await fetch("http://localhost:5000/comments", {
+      const res = await fetch(`${API_BASE_URL}/comments`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

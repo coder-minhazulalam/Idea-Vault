@@ -3,6 +3,7 @@
 
 import { useState } from "react";
 import toast from "react-hot-toast";
+import { API_BASE_URL } from "@/lib/api";
 
 const DeleteComments = ({ commentId, onSuccess }) => {
   const [isDeleting, setIsDeleting] = useState(false);
@@ -15,7 +16,7 @@ const DeleteComments = ({ commentId, onSuccess }) => {
 
     setIsDeleting(true);
     try {
-      const res = await fetch(`http://localhost:5000/comments/${commentId}`, {
+      const res = await fetch(`${API_BASE_URL}/comments/${commentId}`, {
         method: "DELETE",
       });
 
