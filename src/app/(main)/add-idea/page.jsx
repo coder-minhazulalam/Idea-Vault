@@ -3,29 +3,35 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
+import { authClient } from "@/lib/auth-client";
 
 const CATEGORIES = [
-  "Tech",
-  "Health",
-  "AI",
-  "Education",
-  "Finance",
-  "Environment",
-  "Social",
-  "Other",
+  "AI & MACHINE LEARNING",
+  "CYBERSECURITY",
+  "WEB DEVELOPMENT",
+  "HEALTH & WELLNESS",
+  "FINTECH",
+  "EDUCATION",
+  "ENVIRONMENT",
+  "SOCIAL IMPACT",
+  "E-COMMERCE",
+  "PRODUCTIVITY",
 ];
 
 const AddIdeas = () => {
   const router = useRouter();
+  const { data: session } = authClient.useSession();
+  const userId = session?.user?.id;
 
   const [form, setForm] = useState({
-    title: "",
-    shortDescription: "",
-    detailedDescription: "",
     category: "",
-    tags: "",
-    imageUrl: "",
-    estimatedBudget: "",
+    title: "",
+    description: "",
+    founder: "",
+    role: "",
+    funding: "",
+    tag: "",
+    image: "",
     targetAudience: "",
     problemStatement: "",
     proposedSolution: "",
@@ -47,27 +53,26 @@ const AddIdeas = () => {
     e.preventDefault();
 
     if (
-      !form.title ||
-      !form.shortDescription ||
       !form.category ||
+      !form.title ||
+      !form.description ||
+      !form.founder ||
+      !form.role ||
+      !form.funding ||
+      !form.tag ||
+      !form.image ||
       !form.targetAudience ||
       !form.problemStatement ||
       !form.proposedSolution
     ) {
-      toast.error("Please fill in all required fields");
+      toast.error("Please fill in all fields");
       return;
     }
 
     setIsSubmitting(true);
 
     try {
-      const data = Object.fromEntries(Object.entries(form));
-
-      data.tags = form.tags
-        ? form.tags.split(",").map((tag) => tag.trim())
-        : [];
-
-      data.createdAt = new Date();
+    const data = { ...form, userId };
 
       const res = await fetch("http://localhost:5000/ideas", {
         method: "POST",
@@ -93,59 +98,29 @@ const AddIdeas = () => {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-50 px-4 py-10">
+    <div className="min-h-screen bg-zinc-50 px-4 py-10 dark:bg-zinc-950">
       <div className="mx-auto max-w-3xl">
-        <h1 className="mb-2 text-2xl font-bold">Submit Your Idea</h1>
 
-        <p className="mb-8 text-sm text-zinc-500">
+        <h1 className="mb-2 text-2xl font-bold text-zinc-900 dark:text-white">
+          Submit Your Idea
+        </h1>
+
+        <p className="mb-8 text-sm text-zinc-500 dark:text-zinc-400">
           Share your idea with the world.
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-6">
 
           <div>
-            <label>Idea Title *</label>
-            <input
-              type="text"
-              name="title"
-              value={form.title}
-              onChange={handleChange}
-              placeholder="Enter idea title"
-              className="w-full rounded-xl border px-4 py-3"
-            />
-          </div>
+            <label className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+              Category *
+            </label>
 
-          <div>
-            <label>Short Description *</label>
-            <input
-              type="text"
-              name="shortDescription"
-              value={form.shortDescription}
-              onChange={handleChange}
-              placeholder="Short description"
-              className="w-full rounded-xl border px-4 py-3"
-            />
-          </div>
-
-          <div>
-            <label>Detailed Description</label>
-            <textarea
-              name="detailedDescription"
-              value={form.detailedDescription}
-              onChange={handleChange}
-              rows={5}
-              placeholder="Describe your idea"
-              className="w-full rounded-xl border px-4 py-3"
-            />
-          </div>
-
-          <div>
-            <label>Category *</label>
             <select
               name="category"
               value={form.category}
               onChange={handleChange}
-              className="w-full rounded-xl border px-4 py-3"
+              className="w-full rounded-xl border border-zinc-200 bg-white px-4 py-3 text-zinc-900 outline-none focus:border-amber-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white"
             >
               <option value="">Select category</option>
 
@@ -158,81 +133,159 @@ const AddIdeas = () => {
           </div>
 
           <div>
-            <label>Tags</label>
+            <label className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+              Idea Title *
+            </label>
+
             <input
               type="text"
-              name="tags"
-              value={form.tags}
+              name="title"
+              value={form.title}
               onChange={handleChange}
-              placeholder="AI, mobile, healthcare"
-              className="w-full rounded-xl border px-4 py-3"
+              placeholder="SecureNest"
+              className="w-full rounded-xl border border-zinc-200 bg-white px-4 py-3 text-zinc-900 outline-none focus:border-amber-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white dark:placeholder:text-zinc-500"
             />
           </div>
 
           <div>
-            <label>Image URL</label>
-            <input
-              type="text"
-              name="imageUrl"
-              value={form.imageUrl}
+            <label className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+              Description *
+            </label>
+
+            <textarea
+              name="description"
+              value={form.description}
               onChange={handleChange}
-              placeholder="Image URL"
-              className="w-full rounded-xl border px-4 py-3"
+              rows={3}
+              placeholder="A simple cybersecurity monitoring platform designed for small businesses."
+              className="w-full rounded-xl border border-zinc-200 bg-white px-4 py-3 text-zinc-900 outline-none focus:border-amber-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white dark:placeholder:text-zinc-500"
             />
           </div>
 
           <div>
-            <label>Estimated Budget</label>
+            <label className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+              Founder *
+            </label>
+
             <input
               type="text"
-              name="estimatedBudget"
-              value={form.estimatedBudget}
+              name="founder"
+              value={form.founder}
               onChange={handleChange}
-              placeholder="e.g. $5,000"
-              className="w-full rounded-xl border px-4 py-3"
+              placeholder="James Carter"
+              className="w-full rounded-xl border border-zinc-200 bg-white px-4 py-3 text-zinc-900 outline-none focus:border-amber-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white dark:placeholder:text-zinc-500"
             />
           </div>
 
           <div>
-            <label>Target Audience *</label>
+            <label className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+              Role *
+            </label>
+
             <input
               type="text"
+              name="role"
+              value={form.role}
+              onChange={handleChange}
+              placeholder="Founder & Security Engineer"
+              className="w-full rounded-xl border border-zinc-200 bg-white px-4 py-3 text-zinc-900 outline-none focus:border-amber-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white dark:placeholder:text-zinc-500"
+            />
+          </div>
+
+          <div>
+            <label className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+              Funding *
+            </label>
+
+            <input
+              type="text"
+              name="funding"
+              value={form.funding}
+              onChange={handleChange}
+              placeholder="$35K"
+              className="w-full rounded-xl border border-zinc-200 bg-white px-4 py-3 text-zinc-900 outline-none focus:border-amber-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white dark:placeholder:text-zinc-500"
+            />
+          </div>
+
+          <div>
+            <label className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+              Tag *
+            </label>
+
+            <input
+              type="text"
+              name="tag"
+              value={form.tag}
+              onChange={handleChange}
+              placeholder="Small Business"
+              className="w-full rounded-xl border border-zinc-200 bg-white px-4 py-3 text-zinc-900 outline-none focus:border-amber-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white dark:placeholder:text-zinc-500"
+            />
+          </div>
+
+          <div>
+            <label className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+              Image URL *
+            </label>
+
+            <input
+              type="text"
+              name="image"
+              value={form.image}
+              onChange={handleChange}
+              placeholder="https://images.unsplash.com/..."
+              className="w-full rounded-xl border border-zinc-200 bg-white px-4 py-3 text-zinc-900 outline-none focus:border-amber-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white dark:placeholder:text-zinc-500"
+            />
+          </div>
+
+          <div>
+            <label className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+              Target Audience *
+            </label>
+
+            <textarea
               name="targetAudience"
               value={form.targetAudience}
               onChange={handleChange}
-              placeholder="Target audience"
-              className="w-full rounded-xl border px-4 py-3"
+              rows={3}
+              placeholder="Small businesses, startups, and independent professionals."
+              className="w-full rounded-xl border border-zinc-200 bg-white px-4 py-3 text-zinc-900 outline-none focus:border-amber-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white dark:placeholder:text-zinc-500"
             />
           </div>
 
           <div>
-            <label>Problem Statement *</label>
+            <label className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+              Problem Statement *
+            </label>
+
             <textarea
               name="problemStatement"
               value={form.problemStatement}
               onChange={handleChange}
               rows={4}
-              placeholder="What problem does your idea solve?"
-              className="w-full rounded-xl border px-4 py-3"
+              placeholder="Small businesses often lack the resources and expertise required to monitor cybersecurity threats."
+              className="w-full rounded-xl border border-zinc-200 bg-white px-4 py-3 text-zinc-900 outline-none focus:border-amber-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white dark:placeholder:text-zinc-500"
             />
           </div>
 
           <div>
-            <label>Proposed Solution *</label>
+            <label className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+              Proposed Solution *
+            </label>
+
             <textarea
               name="proposedSolution"
               value={form.proposedSolution}
               onChange={handleChange}
               rows={4}
-              placeholder="How does your idea solve the problem?"
-              className="w-full rounded-xl border px-4 py-3"
+              placeholder="An affordable security platform that monitors suspicious activity and provides simple security recommendations."
+              className="w-full rounded-xl border border-zinc-200 bg-white px-4 py-3 text-zinc-900 outline-none focus:border-amber-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white dark:placeholder:text-zinc-500"
             />
           </div>
 
           <button
             type="submit"
             disabled={isSubmitting}
-            className="rounded-xl bg-amber-600 px-8 py-3 text-white cursor-pointer"
+            className="cursor-pointer rounded-xl bg-amber-600 px-8 py-3 font-medium text-white transition hover:bg-amber-500 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isSubmitting ? "Submitting..." : "Submit Idea"}
           </button>
