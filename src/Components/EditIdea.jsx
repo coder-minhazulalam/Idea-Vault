@@ -46,7 +46,7 @@ const EditIdea = ({ idea }) => {
 
     try {
       const res = await fetch(`http://localhost:5000/ideas/${idea._id}`, {
-        method: "PUT",
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
       });
