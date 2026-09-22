@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useForm } from "react-hook-form";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -8,7 +8,7 @@ import { FaEye, FaEyeSlash, FaGoogle } from "react-icons/fa";
 import { authClient } from "@/lib/auth-client";
 import toast from "react-hot-toast";
 
-const LoginPage = () => {
+const LoginForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const searchParams = useSearchParams();
 
@@ -222,6 +222,20 @@ const LoginPage = () => {
         </p>
       </div>
     </div>
+  );
+};
+
+const LoginPage = () => {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex-1 flex items-center justify-center min-h-[400px]">
+          <div className="h-10 w-10 animate-spin rounded-full border-4 border-amber-500 border-t-transparent" />
+        </div>
+      }
+    >
+      <LoginForm />
+    </Suspense>
   );
 };
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { authClient } from "@/lib/auth-client";
@@ -20,8 +20,14 @@ const CATEGORIES = [
 
 const AddIdeas = () => {
   const router = useRouter();
-  const { data: session } = authClient.useSession();
+  const { data: session, isPending } = authClient.useSession();
   const userId = session?.user?.id;
+
+  useEffect(() => {
+    if (!isPending && !session) {
+      router.replace("/login?callbackUrl=/add-idea");
+    }
+  }, [session, isPending, router]);
 
   const [form, setForm] = useState({
     category: "",

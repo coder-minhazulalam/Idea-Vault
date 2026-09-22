@@ -1,16 +1,24 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 import { ArrowRight, Tag, Radio } from "lucide-react";
 import Link from "next/link";
 
 const MyInteractionsPage = () => {
-  const { data: session } = authClient.useSession();
+  const router = useRouter();
+  const { data: session, isPending } = authClient.useSession();
   const userId = session?.user?.id;
 
   const [ideas, setIdeas] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!isPending && !session) {
+      router.replace("/login?callbackUrl=/my-interactions");
+    }
+  }, [session, isPending, router]);
 
   useEffect(() => {
     if (!userId) return;
@@ -31,14 +39,16 @@ const MyInteractionsPage = () => {
     fetchInteractions();
   }, [userId]);
 
-  if (!session && !loading) {
+  if (isPending || (!session && isPending)) {
     return (
-      <div className="flex min-h-[400px] items-center justify-center px-4">
-        <p className="text-sm text-zinc-500 dark:text-zinc-400">
-          Please login to see your interactions.
-        </p>
+      <div className="flex min-h-[400px] items-center justify-center">
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-amber-500 border-t-transparent" />
       </div>
     );
+  }
+
+  if (!session) {
+    return null;
   }
 
   return (
